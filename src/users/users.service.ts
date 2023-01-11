@@ -10,11 +10,10 @@ export class UsersService {
   ) {}
 
   // create new user
-  async create(email: string, password: string) {
-    const user = await this.usersRepository.create({ email, password });
-    user.save();
+  create(email: string, password: string) {
+    const user = this.usersRepository.create({ email, password });
 
-    return user;
+    return user.save();
   }
 
   // find user by id

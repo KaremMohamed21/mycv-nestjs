@@ -7,9 +7,13 @@ import {
   Patch,
   Post,
   Query,
+  Session,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from './guards/auth.guard';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decorators/current-user.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { UserDto } from './dtos/user.dto';
@@ -25,13 +29,34 @@ export class UsersController {
   ) {}
 
   @Post('/signup')
-  createUser(@Body() body: CreateUserDto): Promise<User> {
-    return this.authService.signup(body.email, body.password);
+  async createUser(
+    @Body() body: CreateUserDto,
+    @Session() session: any,
+  ): Promise<User> {
+    const user = await this.authService.signup(body.email, body.password);
+    session.userId = user.id;
+    return user;
   }
 
   @Post('/signin')
-  loginUser(@Body() body: CreateUserDto): Promise<User> {
-    return this.authService.signin(body.email, body.password);
+  async loginUser(
+    @Body() body: CreateUserDto,
+    @Session() session: any,
+  ): Promise<User> {
+    const user = await this.authService.signin(body.email, body.password);
+    session.userId = user.id;
+    return user;
+  }
+
+  @Get('/mine')
+  @UseGuards(AuthGuard)
+  getMyself(@CurrentUser() currentUser: User): User {
+    return currentUser;
+  }
+
+  @Get('/signout')
+  signoutUser(@Session() session: any): void {
+    session.userId = null;
   }
 
   @Get('/:id')

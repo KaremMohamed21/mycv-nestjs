@@ -32,3 +32,9 @@ Content-Type: application/json
 
 ### Remove user by id
 DELETE http://localhost:3000/auth/2
+
+### Get whoami
+GET http://localhost:3000/auth/mine
+
+### signout user
+GET http://localhost:3000/auth/signout
